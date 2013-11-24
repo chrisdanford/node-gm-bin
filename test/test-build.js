@@ -9,7 +9,7 @@ var path = require('path');
 var _ = require('lodash');
 
 describe('gm.build()', function () {
-    it('should rebuild the gm binaries', function (cb) {
+    xit('should rebuild the gm binaries', function (cb) {
         // We don't support building on win32 or darwin.
         if (process.platform === 'win32' || process.platform === 'darwin') {
             cb();
