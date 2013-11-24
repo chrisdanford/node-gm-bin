@@ -6,20 +6,29 @@ var Bin = require('bin-wrapper');
 var fs = require('fs');
 var options = require('../lib/gm-bin').options;
 var path = require('path');
+var _ = require('lodash');
 
 describe('gm.build()', function () {
-    xit('should rebuild the gm binaries', function (cb) {
+    it('should rebuild the gm binaries', function (cb) {
+        // We don't support building on win32 or darwin.
+        if (process.platform === 'win32' || process.platform === 'darwin') {
+            cb();
+            return;
+        }
+
         this.timeout(false);
+        var tempDir = path.join(__dirname, '../tmp');
+        var newOpt = _.extend(options, {
+            path: tempDir,
+            buildScript: './configure && make && cp utilities/gm ' + tempDir
+        });
         var bin = new Bin(options);
 
-        bin.path = options.path;
-        bin.buildScript = options.buildScript;
-
+        var origCTime = fs.statSync(bin.path).ctime;
         bin.build(function () {
-            var origCTime = fs.statSync(bin.path).ctime;
-            var actualCTime = fs.statSync(bin.path).ctime;
+            var newCTime = fs.statSync(bin.path).ctime;
 
-            assert(actualCTime !== origCTime);
+            assert(newCTime !== origCTime);
             cb();
         });
     });
